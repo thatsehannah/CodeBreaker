@@ -6,13 +6,8 @@
 	objectVersion = 77;
 	objects = {
 
-/* Begin PBXBuildFile section */
-		BDD40B263061AF6700DB2BEE /* BlockChooser.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDD40B253061AF6700DB2BEE /* BlockChooser.swift */; };
-/* End PBXBuildFile section */
-
 /* Begin PBXFileReference section */
 		BDC735D4305797D8005F67E8 /* CodeBreaker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CodeBreaker.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		BDD40B253061AF6700DB2BEE /* BlockChooser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockChooser.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -37,7 +32,6 @@
 		BDC735CB305797D8005F67E8 = {
 			isa = PBXGroup;
 			children = (
-				BDD40B253061AF6700DB2BEE /* BlockChooser.swift */,
 				BDC735D6305797D8005F67E8 /* CodeBreaker */,
 				BDC735D5305797D8005F67E8 /* Products */,
 			);
@@ -125,7 +119,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				BDD40B263061AF6700DB2BEE /* BlockChooser.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
