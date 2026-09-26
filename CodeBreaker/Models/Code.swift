@@ -12,7 +12,7 @@ struct Code {
     static let empty: Block = "clear"
     
     var kind: Kind
-    var blocks: [Block] = Array(repeating: Code.empty, count: 4)
+    var blocks: [Block]
     
     enum Kind: Equatable {
         case master(isHidden: Bool)

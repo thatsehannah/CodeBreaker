@@ -44,13 +44,19 @@ struct CodeBreakerView: View {
     // MARK: - Body
     var body: some View {
         VStack {
-            showView(for: game.masterCode)
+            CodeView(code: game.masterCode, selection: $selection, ancillaryView: {  })
             ScrollView {
                 if (!game.isOver) {
-                    showView(for: game.guess)
+                    CodeView(code: game.guess, selection: $selection) {
+                        guessButton
+                    }
                 }
                 ForEach(game.attempts.indices.reversed(), id: \.self) { index in
-                    showView(for: game.attempts[index])
+                    CodeView(code: game.attempts[index], selection: $selection) {
+                        if let results = game.attempts[index].comparisonResults {
+                            MatchOptionResults(results: results)
+                        }
+                    }
                 }
             }
             BlockChooser(choices: game.blockChoices) { block in
@@ -84,22 +90,6 @@ struct CodeBreakerView: View {
             }
             
             return Color.clear
-        }
-    }
-    
-    func showView(for code: Code) -> some View {
-        HStack {
-            CodeView(code: code, selection: $selection)
-            RoundedRectangle(cornerRadius: 10).foregroundStyle(Color.clear).aspectRatio(1, contentMode: .fit)
-                .overlay {
-                    if let comparisonResults = code.comparisonResults {
-                        MatchOptionResults(results: comparisonResults)
-                    } else {
-                        if (code.kind == .guess) {
-                            guessButton
-                        }
-                    }
-                }
         }
     }
     

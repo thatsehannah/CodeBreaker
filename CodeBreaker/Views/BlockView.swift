@@ -31,12 +31,12 @@ struct BlockView: View {
                         .minimumScaleFactor(9/120)
                 }
             }
-            .overlay {
-                if block == Code.empty {
-                    blockShape
-                        .strokeBorder(Color.gray)
-                }
-            }
+//            .overlay {
+//                if block == Code.empty {
+//                    blockShape
+//                        .strokeBorder(Color.gray)
+//                }
+//            }
     }
 }
 
