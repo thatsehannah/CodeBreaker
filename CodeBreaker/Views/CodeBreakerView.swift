@@ -59,22 +59,25 @@ struct CodeBreakerView: View {
                     }
                 }
             }
-            BlockChooser(choices: game.blockChoices) { block in
-                game.setGuessBlock(block, at: selection)
-                selection = (selection + 1) % game.blockChoices.count
-            }
+            BlockChooser(choices: game.blockChoices, onSelect: changeBlockAtSelection)
             Button("Restart Game") {
-                withAnimation {
+                withAnimation(.restart) {
                     game = CodeBreaker(isEmojiGame: Bool.random())
+                    selection = 0
                 }
             }
         }
         .padding()
     }
     
+    func changeBlockAtSelection(to block: Block) {
+        game.setGuessBlock(block, at: selection)
+        selection = (selection + 1) % game.blockChoices.count
+    }
+    
     var guessButton: some View {
         Button("Guess") {
-            withAnimation {
+            withAnimation(.guess) {
                 game.submitGuess()
                 selection = 0
             }
@@ -98,6 +101,12 @@ struct CodeBreakerView: View {
         static let maximumFontSize: CGFloat = 80
         static let scaleFactor = minimumFontSize / maximumFontSize
     }
+}
+
+extension Animation {
+    static let codeBreaker = Animation.easeInOut(duration: 3)
+    static let guess = Animation.codeBreaker
+    static let restart = Animation.codeBreaker
 }
 
 #Preview {

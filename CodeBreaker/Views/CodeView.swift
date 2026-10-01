@@ -29,15 +29,20 @@ struct CodeView<AncillaryView>: View where AncillaryView: View {
             ForEach(code.blocks.indices, id: \.self) { index in
                 BlockView(block: code.blocks[index])
                     .padding(Selection.border)
-                    .background {
+                    .background { // selection background
                         if selection == index, code.kind == .guess {
                             Selection.shape
                                 .foregroundStyle(Selection.color)
                         }
-                        
                     }
-                    .overlay {
-                        Selection.shape.foregroundStyle(code.isHidden ? Color.gray : .clear)
+                    .overlay { // Hidden code
+                        Selection.shape
+                            .foregroundStyle(code.isHidden ? Color.gray : .clear)
+                            .transaction { transaction in
+                                if code.isHidden == true { // this occurs when the isHidden property is being set to true
+                                    transaction.animation = nil
+                                }
+                            }
                     }
                     .onTapGesture {
                         if code.kind == .guess {
