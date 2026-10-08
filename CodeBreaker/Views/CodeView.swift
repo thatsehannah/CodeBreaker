@@ -14,6 +14,9 @@ struct CodeView<AncillaryView>: View where AncillaryView: View {
     // MARK: Data shared with me
     @Binding var selection: Int
     
+    // MARK: Data owned by me
+    @Namespace private var selectionNamespace // this is for matchedGeometryEffect, which requires a namespace. the id required my matchedGeometryEffect can potentially be used in other parts of the code, but adding this namespace locks it to this particular usage
+    
     @ViewBuilder let ancillaryView: () -> AncillaryView
     
     init(code: Code, selection: Binding<Int> = .constant(-1), @ViewBuilder ancillaryView: @escaping () -> AncillaryView = { EmptyView() }) {
@@ -27,22 +30,27 @@ struct CodeView<AncillaryView>: View where AncillaryView: View {
     var body: some View {
         HStack {
             ForEach(code.blocks.indices, id: \.self) { index in
-                BlockView(block: code.blocks[index])
+                BlockView(block: code.isHidden ? Code.empty : code.blocks[index])
                     .padding(Selection.border)
                     .background { // selection background
-                        if selection == index, code.kind == .guess {
-                            Selection.shape
-                                .foregroundStyle(Selection.color)
+                        Group { // Group is a container that can group views together without changing the layout. used here to apply the animation strictly to the background and not the whole BlockView itself
+                            if selection == index, code.kind == .guess {
+                                Selection.shape
+                                    .foregroundStyle(Selection.color)
+                                    .matchedGeometryEffect(id: "selection", in: selectionNamespace) 
+                            }
                         }
+                        .animation(.select, value: selection)
                     }
+                    
                     .overlay { // Hidden code
                         Selection.shape
                             .foregroundStyle(code.isHidden ? Color.gray : .clear)
-                            .transaction { transaction in
-                                if code.isHidden == true { // this occurs when the isHidden property is being set to true
-                                    transaction.animation = nil
-                                }
-                            }
+//                            .transaction { transaction in
+//                                if code.isHidden { // this occurs when the isHidden property is being set to true
+//                                    transaction.animation = nil
+//                                }
+//                            }
                     }
                     .onTapGesture {
                         if code.kind == .guess {

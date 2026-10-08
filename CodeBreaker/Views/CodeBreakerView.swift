@@ -7,65 +7,43 @@
 
 import SwiftUI
 
-extension Color {
-    init?(name: String) {
-        switch name {
-        case "green":
-            self = .green
-        case "yellow":
-            self = .yellow
-        case "red":
-            self = .red
-        case "orange":
-            self = .orange
-        case "black":
-            self = .black
-        case "blue":
-            self = .blue
-        case "clear":
-            self = .clear
-        default:
-            return nil
-        }
-    }
-}
-
-extension Color {
-    static func gray(_ brightness: CGFloat) -> Color {
-        return Color(hue: 148/360, saturation: 0, brightness: brightness)
-    }
-}
-
 struct CodeBreakerView: View {
     // MARK: Data Owned by Me
     @State private var game = CodeBreaker(isEmojiGame: Bool.random())
     @State private var selection: Int = 0
+    @State private var restarting: Bool = false
+    @State private var hideMostrRecentResult = false
     
     // MARK: - Body
     var body: some View {
         VStack {
             CodeView(code: game.masterCode)
             ScrollView {
-                if (!game.isOver) {
+                if (!game.isOver || restarting) {
                     CodeView(code: game.guess, selection: $selection) {
-                        guessButton
+                        Button("Guess", action: makeGuess)
+                            .flexibleSystemFont()
                     }
+                    
+                    .animation(nil, value: game.attempts.count)
+                    .opacity(restarting ? 0 : 1)
                 }
                 ForEach(game.attempts.indices.reversed(), id: \.self) { index in
                     CodeView(code: game.attempts[index]) {
-                        if let results = game.attempts[index].comparisonResults {
+                        let showResults = !hideMostrRecentResult || index != game.attempts.count - 1
+                        if showResults, let results = game.attempts[index].comparisonResults {
                             MatchOptionResults(results: results)
                         }
                     }
+                    .transition(AnyTransition.attemptTransition(game.isOver))
                 }
             }
-            BlockChooser(choices: game.blockChoices, onSelect: changeBlockAtSelection)
-            Button("Restart Game") {
-                withAnimation(.restart) {
-                    game = CodeBreaker(isEmojiGame: Bool.random())
-                    selection = 0
-                }
+            if (!game.isOver) {
+                BlockChooser(choices: game.blockChoices, onSelect: changeBlockAtSelection)
+                    .transition(.blockChooserTransition) // point of origin is the upper left corner, so a positive y is down, and negative y is up
             }
+            
+            Button("Restart Game", systemImage: "arrow.circlepath", action: restartGame)
         }
         .padding()
     }
@@ -73,17 +51,31 @@ struct CodeBreakerView: View {
     func changeBlockAtSelection(to block: Block) {
         game.setGuessBlock(block, at: selection)
         selection = (selection + 1) % game.blockChoices.count
+        
     }
     
-    var guessButton: some View {
-        Button("Guess") {
-            withAnimation(.guess) {
-                game.submitGuess()
+    func restartGame() {
+        withAnimation(.restart) {
+            restarting = true
+        } completion: {
+            withAnimation(.restart) {
+                game = CodeBreaker(isEmojiGame: Bool.random())
                 selection = 0
+                restarting = false
             }
         }
-        .font(.system(size: GuessButton.maximumFontSize))
-        .minimumScaleFactor(GuessButton.scaleFactor)
+    }
+    
+    func makeGuess() {
+        withAnimation(.guess) {
+            game.submitGuess()
+            selection = 0
+            hideMostrRecentResult = true
+        } completion: {
+            withAnimation(.guess) {
+                hideMostrRecentResult = false
+            }
+        }
     }
     
     func convertStringToColor(for blocks: [Block]) -> [Color] {
@@ -95,19 +87,9 @@ struct CodeBreakerView: View {
             return Color.clear
         }
     }
-    
-    struct GuessButton {
-        static let minimumFontSize: CGFloat = 8
-        static let maximumFontSize: CGFloat = 80
-        static let scaleFactor = minimumFontSize / maximumFontSize
-    }
 }
 
-extension Animation {
-    static let codeBreaker = Animation.easeInOut(duration: 3)
-    static let guess = Animation.codeBreaker
-    static let restart = Animation.codeBreaker
-}
+
 
 #Preview {
     CodeBreakerView()
