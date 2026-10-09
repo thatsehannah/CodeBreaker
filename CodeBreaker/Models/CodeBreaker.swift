@@ -15,6 +15,8 @@ struct CodeBreaker {
     var attempts: [Code] = []
     let blockChoices: [Block] // TODO: change this to a Set
     var isEmojiGame: Bool
+    var startTime: Date = Date.now
+    var endTime: Date?
     
     init(isEmojiGame: Bool) {
         self.isEmojiGame = isEmojiGame
@@ -25,6 +27,9 @@ struct CodeBreaker {
         self.masterCode = Code(kind: .master(isHidden: true), blocks: Array(repeating: Code.empty, count: self.blockChoices.count))
         self.guess = Code(kind: .guess, blocks: Array(repeating: Code.empty, count: self.blockChoices.count))
         masterCode.createMasterCode(from: self.blockChoices)
+        startTime = .now
+        endTime = nil
+        
         print(masterCode)
     }
     
@@ -45,6 +50,7 @@ struct CodeBreaker {
         
         if isOver {
             masterCode.kind = .master(isHidden: false)
+            endTime = .now
         }
     }
     

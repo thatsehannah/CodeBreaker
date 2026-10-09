@@ -17,7 +17,12 @@ struct CodeBreakerView: View {
     // MARK: - Body
     var body: some View {
         VStack {
-            CodeView(code: game.masterCode)
+            CodeView(code: game.masterCode) {
+                ElapsedTimeView(startTime: game.startTime, endTime: game.endTime)
+                    .flexibleSystemFont()
+                    .monospaced()
+                    .lineLimit(1) // caps the max number of lines this view can occupy
+            }
             ScrollView {
                 if !game.isOver {
                     CodeView(code: game.guess, selection: $selection) {
